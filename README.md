@@ -168,10 +168,7 @@ Terraform MCP Server was configured inside the VS Code workspace using:
 
 The MCP server successfully started and exposed Terraform tools to GitHub Copilot Agent.
 
-![Terraform MCP Server Running]
-
-
-![alt text](01-mcp-server-running.png)
+![Terraform MCP Server Running](screenshots/01-mcp-server-running.png)
 ---
 
 # 2️⃣ Retrieve Current AzureRM Provider Information
@@ -189,11 +186,7 @@ Version: 5.1.0
 
 The MCP tool used by Copilot retrieved the current provider version from the registry.
 
-![AzureRM Provider Lookup]
-
-
-![alt text](02-azurerm-version-mcp.png)
-
+![AzureRM Provider Lookup](screenshots/02-azurerm-version-mcp.png)
 ---
 
 # 3️⃣ Retrieve Azure Storage Account Documentation
@@ -206,10 +199,7 @@ azurerm_storage_account
 
 The MCP server retrieved current provider documentation before Terraform configuration was generated.
 
-![Storage Account Documentation]
-
-
-![alt text](03-storage-account-docs-mcp.png)
+![Storage Account Documentation](screenshots/03-storage-account-docs-mcp.png)
 
 This workflow demonstrates:
 
@@ -341,9 +331,7 @@ azurerm_resource_group.main
 azurerm_storage_account.main
 ```
 
-![Terraform Plan]
-
-![alt text](04-terraform-plan.png)
+![Terraform Plan](screenshots/04-terraform-plan.png)
 
 ---
 
@@ -366,10 +354,7 @@ Resources:
 0 destroyed
 ```
 
-![Terraform Apply Success]
-
-
-![alt text](05-terraform-apply-success.png)
+![Terraform Apply Success](screenshots/05-terraform-apply-success.png)
 
 ---
 
@@ -395,10 +380,7 @@ Region:
 Central India
 ```
 
-![Azure Portal Verification]
-
-![alt text](07-azure-portal-verification.png)
-
+![Azure Portal Verification](screenshots/07-azure-portal-verification.png)
 ---
 
 # 🔄 Terraform State
@@ -452,9 +434,7 @@ Terraform proposed:
 Plan: 0 to add, 1 to change, 0 to destroy.
 ```
 
-![Terraform Drift Detection]
-
-![alt text](06-drift-detection.png)
+![Terraform Drift Detection](screenshots/06-drift-detection.png)
 
 
 ---
@@ -501,9 +481,7 @@ No changes.
 Your infrastructure matches the configuration.
 ```
 
-![Terraform Drift Remediation]
-
-![alt text](08-drift-remediation-success.png)
+![Terraform Drift Remediation](screenshots/08-drift-remediation-success.png)
 
 ---
 
