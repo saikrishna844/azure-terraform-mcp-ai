@@ -1,0 +1,6 @@
+resource_group_name      = "Your-Resource-Group"
+location                 = "Central India"
+storage_account_name     = "Your Storage Account"
+account_tier             = "Standard"
+account_replication_type = "LRS"
+environment              = "dev"
