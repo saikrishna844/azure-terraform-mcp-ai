@@ -1,0 +1,30 @@
+name: Azure Approval Gate Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  protected-deployment:
+    name: Protected Azure Deployment
+    runs-on: ubuntu-latest
+
+    environment:
+      name: azure-dev
+
+    steps:
+      - name: Login to Azure using OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Approval Gate Passed
+        run: |
+          echo "Human approval completed successfully."
+          echo "Azure OIDC authentication succeeded."
+          echo "Terraform Apply would be allowed after this point."
