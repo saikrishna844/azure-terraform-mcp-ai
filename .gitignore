@@ -24,3 +24,5 @@ terraform.rc
 # OS/editor files
 .DS_Store
 Thumbs.db
+
+local-state-backup.json
