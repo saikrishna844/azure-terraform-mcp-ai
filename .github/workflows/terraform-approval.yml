@@ -1,0 +1,142 @@
+name: Terraform Plan - Review - Approval - Apply
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-azure-dev
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: true
+
+  TF_VAR_resource_group_name: "rg-terraform-mcp-ai-dev"
+  TF_VAR_location: "Central India"
+  TF_VAR_storage_account_name: "tfmcpai2026dev"
+  TF_VAR_account_tier: "Standard"
+  TF_VAR_account_replication_type: "LRS"
+  TF_VAR_environment: "dev"
+
+jobs:
+
+  # =========================================================
+  # JOB 1 - GENERATE AND DISPLAY TERRAFORM PLAN
+  # =========================================================
+  terraform-plan:
+    name: 1 - Terraform Plan for Review
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Login to Azure using OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.15.6"
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Generate Terraform Plan
+        run: |
+          terraform plan \
+            -input=false \
+            -no-color \
+            -lock-timeout=5m \
+            -out=tfplan
+
+      - name: Create Readable Terraform Plan
+        run: terraform show -no-color tfplan > tfplan.txt
+
+      - name: Display Terraform Plan
+        run: cat tfplan.txt
+
+      - name: Add Plan to Workflow Summary
+        run: |
+          echo "## 📋 Terraform Plan - Manual Review Required" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Review the plan below before approving the deployment." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          cat tfplan.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Saved Terraform Plan
+        uses: actions/upload-artifact@v7
+        with:
+          name: terraform-approved-plan
+          path: tfplan
+          retention-days: 1
+
+
+  # =========================================================
+  # JOB 2 - HUMAN APPROVAL + APPLY EXACT SAVED PLAN
+  # =========================================================
+  terraform-apply:
+    name: 2 - Human Approval and Terraform Apply
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+
+    environment:
+      name: azure-dev
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Login to Azure using OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.15.6"
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Download Reviewed Terraform Plan
+        uses: actions/download-artifact@v8
+        with:
+          name: terraform-approved-plan
+          path: .
+
+      - name: Apply Reviewed Terraform Plan
+        run: |
+          terraform apply \
+            -input=false \
+            -lock-timeout=5m \
+            tfplan
+
+      - name: Verify Infrastructure After Apply
+        run: |
+          terraform plan \
+            -input=false \
+            -no-color \
+            -lock-timeout=5m
