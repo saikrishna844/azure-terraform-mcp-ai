@@ -1,4 +1,4 @@
-AI-Assisted Azure Infrastructure with Terraform MCP, GitHub Copilot & Human Approval Gates
+## AI-Assisted Azure Infrastructure with Terraform MCP, GitHub Copilot & Human Approval Gates
 
 Context-aware Infrastructure as Code with Terraform MCP, Azure, GitHub OIDC, remote state, drift detection, and a real human approval gate before terraform apply.
 
@@ -12,6 +12,7 @@ This project explores a safer and more practical workflow where GitHub Copilot A
 
 The project then goes beyond code generation by implementing the complete Terraform lifecycle:
 
+```
 Developer Requirement
         ↓
 GitHub Copilot Agent
@@ -47,7 +48,7 @@ Drift Remediation
 terraform plan
         ↓
 No Changes ✅
-
+```
 The key principle behind the project is simple:
 
 AI can assist. MCP can provide better context. Terraform can automate infrastructure. But engineering judgment still matters.
@@ -93,6 +94,8 @@ It demonstrates:
 🎯 Final reconciliation verification with No changes
 
 🏗️ Architecture
+
+```
 
 ┌──────────────────────────────┐
 │        Developer / VS Code   │
@@ -164,7 +167,7 @@ tfstate container
                │
                ▼
 azure-terraform-mcp-ai-dev.tfstate
-
+```
 🧰 Technology Stack
 
 Technology
@@ -224,7 +227,7 @@ VS Code
 Development environment
 
 📁 Repository Structure
-
+```
 azure-terraform-mcp-ai/
 │
 ├── .github/
@@ -258,7 +261,7 @@ azure-terraform-mcp-ai/
 ├── terraform.tfvars.example
 ├── variables.tf
 └── README.md
-
+```
 terraform.tfvars, local state files, saved plan files, and local backups are intentionally excluded from Git.
 
 1️⃣ Terraform MCP Server Integration
@@ -302,7 +305,7 @@ The goal was to move from:
 Prompt → AI → Terraform Code
 
 toward:
-
+```
 Requirement
     ↓
 AI Agent
@@ -314,7 +317,7 @@ Provider / Resource Context
 Terraform Configuration
     ↓
 Engineer Review
-
+```
 Key idea
 
 Context before code.
@@ -448,7 +451,7 @@ After deployment, the resources were verified directly in Microsoft Azure.
 ![Azure Portal Verification](screenshots/07-azure-portal-verification.png)
 
 The first lifecycle was therefore:
-
+```
 Terraform Code
       ↓
 Validate
@@ -462,13 +465,13 @@ Apply
 Azure
       ↓
 Verify
-
+```
 9️⃣ Azure Remote Terraform State
 
 The project was later improved by migrating local Terraform state to an Azure remote backend.
 
 The backend architecture is:
-
+```
 Terraform CLI / GitHub Actions
         ↓
 AzureRM Backend
@@ -478,7 +481,7 @@ Azure Storage Account
 tfstate container
         ↓
 azure-terraform-mcp-ai-dev.tfstate
-
+```
 Example backend.tf structure:
 
 terraform {
@@ -508,7 +511,7 @@ confirmed that the existing Azure resources remained mapped correctly and no rec
 A major security improvement was replacing long-lived Azure secrets with GitHub OIDC authentication.
 
 The authentication flow is:
-
+```
 GitHub Actions
       ↓
 OIDC Token
@@ -522,7 +525,7 @@ Service Principal
 Azure RBAC
       ↓
 Azure
-
+```
 Repository secrets used:
 
 AZURE_CLIENT_ID
@@ -587,7 +590,7 @@ After approval, GitHub records the deployment protection decision, including the
 The protected deployment job uses an environment-specific OIDC identity.
 
 The workflow waits first:
-
+```
 Terraform Plan
       ↓
 Human Review
@@ -603,7 +606,7 @@ GitHub OIDC
 Azure Login
       ↓
 Terraform Apply
-
+```
 
 
 This demonstrates that approval is not simply informational—it controls whether the Azure deployment stage can execute.
@@ -613,7 +616,7 @@ This demonstrates that approval is not simply informational—it controls whethe
 The final GitHub Actions workflow implements two jobs.
 
 Job 1 — Terraform Plan
-
+```
 Checkout
     ↓
 Azure OIDC Login
@@ -633,13 +636,13 @@ terraform show tfplan
 Readable Plan
     ↓
 Upload Saved Plan
-
+```
 ![Terraform Plan for Review Success](screenshots/11-terraform-plan-for-review-success.png)
 
 The Terraform plan is also added to the GitHub workflow summary so the reviewer can inspect the proposed infrastructure changes.
 
 Job 2 — Protected Terraform Apply
-
+```
 Plan Job Completed
       ↓
 🛑 azure-dev Approval Gate
@@ -653,7 +656,7 @@ Download SAME tfplan
 terraform apply tfplan
       ↓
 Final terraform plan
-
+```
 ![Terraform Apply After Human Approval](screenshots/12-terraform-apply-after-approval-success.png)
 
 Why the saved plan matters
@@ -707,7 +710,7 @@ The engineer must decide:
 Should we keep the manual change or remove it?
 
 Scenario A — Manual change was accidental
-
+```
 Keep Terraform code unchanged
         ↓
 terraform plan
@@ -719,7 +722,7 @@ Human approval
 terraform apply reviewed-plan
         ↓
 Azure returns to declared state
-
+```
 Scenario B — Manual change was approved
 
 The approved change should be added to the Terraform configuration.
@@ -794,14 +797,15 @@ Terraform MCP
       ↓
 Terraform / provider context
 
-
+```
 GitHub Copilot Agent
       ↓
 AI-assisted research and development
+```
 
-
+```
 Terraform
-      ↓
+  ↓
 Format
 Init
 Validate
@@ -825,7 +829,7 @@ Human approval enforcement
 Microsoft Azure
       ↓
 Actual infrastructure
-
+```
 Terraform MCP improves the context available to the AI assistant.
 
 Terraform remains responsible for infrastructure lifecycle management.
@@ -948,7 +952,7 @@ The final deployment workflow is located at:
 .github/workflows/terraform-approval.yml
 
 It implements:
-
+```
 Terraform Plan
       ↓
 Readable Plan
@@ -964,7 +968,7 @@ OIDC Authentication
 Apply Exact Saved Plan
       ↓
 Final Verification
-
+```
 This is the governance control added to ensure that Terraform Apply cannot proceed without explicit human approval.
 
 2️⃣2️⃣ RBAC Design
@@ -972,7 +976,7 @@ This is the governance control added to ensure that Terraform Apply cannot proce
 The GitHub federated identity is intentionally scoped rather than given broad unrestricted access.
 
 Conceptually:
-
+```
 GitHub OIDC Service Principal
         │
         ├── Contributor
@@ -982,7 +986,7 @@ GitHub OIDC Service Principal
         └── Storage Blob Data Contributor
                ↓
             Terraform State Storage
-
+```
 This separates:
 
 Infrastructure permissions
@@ -1022,7 +1026,7 @@ Terraform can detect drift, but humans still decide whether an external change s
 Saving the plan helps preserve the connection between human review and infrastructure execution.
 
 🎯 Final End-to-End Workflow
-
+```
 Developer Requirement
         ↓
 GitHub Copilot Agent
@@ -1074,7 +1078,7 @@ Approved Remediation
 terraform plan
    ↓
 No Changes ✅
-
+```
 💡 Biggest Takeaway
 
 The goal is not to let AI control infrastructure. The goal is to use AI and MCP to improve engineering context while keeping Terraform lifecycle controls, identity, security, plan review, and deployment approval firmly governed.
